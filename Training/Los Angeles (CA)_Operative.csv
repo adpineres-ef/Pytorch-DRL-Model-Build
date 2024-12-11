@@ -1,0 +1,21 @@
+Orig,Dest,Miles,Trip_type,Avg_rate,Loads_Available,Cargo_Type,PickUpDay,DeliveryDay
+Los Angeles (CA),Chandler (AZ),415.0,Loaded,$2.83,340.0,FTL,1.0,2.0
+Chandler (AZ),Sumas (WA),1509.0,Loaded,$1.94,64.0,FTL,2.0,4.0
+Sumas (WA),Los Angeles (CA),1192.0,Loaded,$1.13,62.0,FTL,4.0,6.0
+end,,,,,,,,
+Los Angeles (CA),Chandler (AZ),415.0,Loaded,$2.83,340.0,FTL,1.0,2.0
+Chandler (AZ),Sumas (WA),1509.0,Loaded,$1.94,64.0,FTL,2.0,4.0
+Sumas (WA),Los Angeles (CA),1192.0,Loaded,$1.13,62.0,FTL,4.0,6.0
+end,,,,,,,,
+Los Angeles (CA),Chandler (AZ),415.0,Loaded,$2.83,340.0,FTL,1.0,2.0
+Chandler (AZ),Sumas (WA),1509.0,Loaded,$1.94,64.0,FTL,2.0,4.0
+Sumas (WA),Los Angeles (CA),1192.0,Loaded,$1.13,62.0,FTL,4.0,6.0
+end,,,,,,,,
+Los Angeles (CA),Chandler (AZ),415.0,Loaded,$2.83,340.0,FTL,1.0,2.0
+Chandler (AZ),Sumas (WA),1509.0,Loaded,$1.94,64.0,FTL,2.0,4.0
+Sumas (WA),Los Angeles (CA),1192.0,Loaded,$1.13,62.0,FTL,4.0,6.0
+end,,,,,,,,
+Los Angeles (CA),Chandler (AZ),415.0,Loaded,$2.83,340.0,FTL,1.0,2.0
+Chandler (AZ),Sumas (WA),1509.0,Loaded,$1.94,64.0,FTL,2.0,4.0
+Sumas (WA),Los Angeles (CA),1192.0,Loaded,$1.13,62.0,FTL,4.0,6.0
+end,,,,,,,,
