@@ -1,0 +1,21 @@
+Orig,Dest,Miles,Trip_type,Avg_rate,Loads_Available,Cargo_Type,PickUpDay,DeliveryDay
+Eugene (OR),Kalispell (MT),667.0,Loaded,$2.83,19.0,FTL,1.0,2.0
+Kalispell (MT),Oklahoma City (OK),1643.0,Loaded,$0.00,8.0,FTL,2.0,5.0
+Oklahoma City (OK),Eugene (OR),1935.0,Loaded,$1.63,3.0,FTL,5.0,8.0
+end,,,,,,,,
+Eugene (OR),Kalispell (MT),667.0,Loaded,$2.83,19.0,FTL,1.0,2.0
+Kalispell (MT),Oklahoma City (OK),1643.0,Loaded,$0.00,8.0,FTL,2.0,5.0
+Oklahoma City (OK),Eugene (OR),1935.0,Loaded,$1.63,3.0,FTL,5.0,8.0
+end,,,,,,,,
+Eugene (OR),Kalispell (MT),667.0,Loaded,$2.83,19.0,FTL,1.0,2.0
+Kalispell (MT),Oklahoma City (OK),1643.0,Loaded,$0.00,8.0,FTL,2.0,5.0
+Oklahoma City (OK),Eugene (OR),1935.0,Loaded,$1.63,3.0,FTL,5.0,8.0
+end,,,,,,,,
+Eugene (OR),Kalispell (MT),667.0,Loaded,$2.83,19.0,FTL,1.0,2.0
+Kalispell (MT),Oklahoma City (OK),1643.0,Loaded,$0.00,8.0,FTL,2.0,5.0
+Oklahoma City (OK),Eugene (OR),1935.0,Loaded,$1.63,3.0,FTL,5.0,8.0
+end,,,,,,,,
+Eugene (OR),Kalispell (MT),667.0,Loaded,$2.83,19.0,FTL,1.0,2.0
+Kalispell (MT),Oklahoma City (OK),1643.0,Loaded,$0.00,8.0,FTL,2.0,5.0
+Oklahoma City (OK),Eugene (OR),1935.0,Loaded,$1.63,3.0,FTL,5.0,8.0
+end,,,,,,,,

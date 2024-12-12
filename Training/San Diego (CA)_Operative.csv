@@ -1,0 +1,26 @@
+Orig,Dest,Miles,Trip_type,Avg_rate,Loads_Available,Cargo_Type,PickUpDay,DeliveryDay
+San Diego (CA),Chandler (AZ),376.0,Loaded,$2.85,336.0,FTL,1.0,2.0
+Chandler (AZ),Priest River (ID),1393.0,Loaded,$2.28,13.0,FTL,2.0,4.0
+Priest River (ID),"Carson (WA, OR)",325.0,Loaded,$2.35,17.0,FTL,4.0,4.0
+"Carson (WA, OR)",San Diego (CA),1054.0,Loaded,$1.13,217.0,FTL,4.0,7.0
+end,,,,,,,,
+San Diego (CA),Chandler (AZ),376.0,Loaded,$2.85,336.0,FTL,1.0,2.0
+Chandler (AZ),Priest River (ID),1393.0,Loaded,$2.28,13.0,FTL,2.0,4.0
+Priest River (ID),"Carson (WA, OR)",325.0,Loaded,$2.35,17.0,FTL,4.0,4.0
+"Carson (WA, OR)",San Diego (CA),1054.0,Loaded,$1.13,217.0,FTL,4.0,7.0
+end,,,,,,,,
+San Diego (CA),Chandler (AZ),376.0,Loaded,$2.85,336.0,FTL,1.0,2.0
+Chandler (AZ),Priest River (ID),1393.0,Loaded,$2.28,13.0,FTL,2.0,4.0
+Priest River (ID),"Carson (WA, OR)",325.0,Loaded,$2.35,17.0,FTL,4.0,4.0
+"Carson (WA, OR)",San Diego (CA),1054.0,Loaded,$1.13,217.0,FTL,4.0,7.0
+end,,,,,,,,
+San Diego (CA),Chandler (AZ),376.0,Loaded,$2.85,336.0,FTL,1.0,2.0
+Chandler (AZ),Priest River (ID),1393.0,Loaded,$2.28,13.0,FTL,2.0,4.0
+Priest River (ID),"Carson (WA, OR)",325.0,Loaded,$2.35,17.0,FTL,4.0,4.0
+"Carson (WA, OR)",San Diego (CA),1054.0,Loaded,$1.13,217.0,FTL,4.0,7.0
+end,,,,,,,,
+San Diego (CA),Chandler (AZ),376.0,Loaded,$2.85,336.0,FTL,1.0,2.0
+Chandler (AZ),Priest River (ID),1393.0,Loaded,$2.28,13.0,FTL,2.0,4.0
+Priest River (ID),"Carson (WA, OR)",325.0,Loaded,$2.35,17.0,FTL,4.0,4.0
+"Carson (WA, OR)",San Diego (CA),1054.0,Loaded,$1.13,217.0,FTL,4.0,7.0
+end,,,,,,,,

@@ -1,0 +1,26 @@
+Orig,Dest,Miles,Trip_type,Avg_rate,Loads_Available,Cargo_Type,PickUpDay,DeliveryDay
+Chandler (AZ),Dallas (TX),1108.0,Loaded,$1.98,141.0,FTL,1.0,3.0
+Dallas (TX),Fort Worth (TX),100.0,Loaded,$3.84,386.0,FTL,3.0,3.0
+Fort Worth (TX),Atlanta (GA),831.0,Loaded,$1.73,234.0,FTL,3.0,5.0
+Atlanta (GA),Chandler (AZ),1829.0,Loaded,$1.12,13.0,FTL,5.0,7.0
+end,,,,,,,,
+Chandler (AZ),Dallas (TX),1108.0,Loaded,$1.98,141.0,FTL,1.0,3.0
+Dallas (TX),Fort Worth (TX),100.0,Loaded,$3.84,386.0,FTL,3.0,3.0
+Fort Worth (TX),Atlanta (GA),831.0,Loaded,$1.73,234.0,FTL,3.0,5.0
+Atlanta (GA),Chandler (AZ),1829.0,Loaded,$1.12,13.0,FTL,5.0,7.0
+end,,,,,,,,
+Chandler (AZ),Dallas (TX),1108.0,Loaded,$1.98,141.0,FTL,1.0,3.0
+Dallas (TX),Fort Worth (TX),100.0,Loaded,$3.84,386.0,FTL,3.0,3.0
+Fort Worth (TX),Atlanta (GA),831.0,Loaded,$1.73,234.0,FTL,3.0,5.0
+Atlanta (GA),Chandler (AZ),1829.0,Loaded,$1.12,13.0,FTL,5.0,7.0
+end,,,,,,,,
+Chandler (AZ),Dallas (TX),1108.0,Loaded,$1.98,141.0,FTL,1.0,3.0
+Dallas (TX),Fort Worth (TX),100.0,Loaded,$3.84,386.0,FTL,3.0,3.0
+Fort Worth (TX),Atlanta (GA),831.0,Loaded,$1.73,234.0,FTL,3.0,5.0
+Atlanta (GA),Chandler (AZ),1829.0,Loaded,$1.12,13.0,FTL,5.0,7.0
+end,,,,,,,,
+Chandler (AZ),Dallas (TX),1108.0,Loaded,$1.98,141.0,FTL,1.0,3.0
+Dallas (TX),Fort Worth (TX),100.0,Loaded,$3.84,386.0,FTL,3.0,3.0
+Fort Worth (TX),Atlanta (GA),831.0,Loaded,$1.73,234.0,FTL,3.0,5.0
+Atlanta (GA),Chandler (AZ),1829.0,Loaded,$1.12,13.0,FTL,5.0,7.0
+end,,,,,,,,

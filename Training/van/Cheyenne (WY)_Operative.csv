@@ -1,0 +1,21 @@
+Orig,Dest,Miles,Trip_type,Avg_rate,Loads_Available,Cargo_Type,PickUpDay,DeliveryDay
+Cheyenne (WY),Eau Claire (WI),916.0,Loaded,$1.01,17.0,FTL,1.0,2.0
+Eau Claire (WI),"Brooklyn (NJ, NY)",1105.0,Loaded,$2.02,163.0,FTL,2.0,4.0
+"Brooklyn (NJ, NY)",Cheyenne (WY),1726.0,Loaded,$1.56,44.0,FTL,4.0,7.0
+end,,,,,,,,
+Cheyenne (WY),Eau Claire (WI),779.0,Loaded,$1.22,44.0,FTL,1.0,2.0
+Eau Claire (WI),"Brooklyn (NJ, NY)",1241.0,Deadhead,$1.36,0.0,FTL,2.0,4.0
+"Brooklyn (NJ, NY)",Cheyenne (WY),827.0,Loaded,$3.19,36.0,FTL,4.0,6.0
+end,,,,,,,,
+Cheyenne (WY),Eau Claire (WI),916.0,Loaded,$1.01,17.0,FTL,1.0,2.0
+Eau Claire (WI),"Brooklyn (NJ, NY)",1105.0,Loaded,$2.02,163.0,FTL,2.0,4.0
+"Brooklyn (NJ, NY)",Cheyenne (WY),1726.0,Loaded,$1.56,44.0,FTL,4.0,7.0
+end,,,,,,,,
+Cheyenne (WY),Eau Claire (WI),916.0,Loaded,$1.01,17.0,FTL,1.0,2.0
+Eau Claire (WI),"Brooklyn (NJ, NY)",1105.0,Loaded,$2.02,163.0,FTL,2.0,4.0
+"Brooklyn (NJ, NY)",Cheyenne (WY),1726.0,Loaded,$1.56,44.0,FTL,4.0,7.0
+end,,,,,,,,
+Cheyenne (WY),Eau Claire (WI),916.0,Loaded,$1.01,17.0,FTL,1.0,2.0
+Eau Claire (WI),"Brooklyn (NJ, NY)",1105.0,Loaded,$2.02,163.0,FTL,2.0,4.0
+"Brooklyn (NJ, NY)",Cheyenne (WY),1726.0,Loaded,$1.56,44.0,FTL,4.0,7.0
+end,,,,,,,,

@@ -1,0 +1,16 @@
+Orig,Dest,Miles,Trip_type,Avg_rate,Loads_Available,Cargo_Type,PickUpDay,DeliveryDay
+San Diego (CA),Atlanta (GA),2169.0,Loaded,$2.01,164.0,FTL,1.0,5.0
+Atlanta (GA),San Diego (CA),2169.0,Loaded,$0.97,35.0,FTL,5.0,8.0
+end,,,,,,,,
+San Diego (CA),Atlanta (GA),2169.0,Loaded,$2.01,164.0,FTL,1.0,5.0
+Atlanta (GA),San Diego (CA),2169.0,Loaded,$0.97,35.0,FTL,5.0,8.0
+end,,,,,,,,
+San Diego (CA),Atlanta (GA),2169.0,Loaded,$2.01,164.0,FTL,1.0,5.0
+Atlanta (GA),San Diego (CA),2169.0,Loaded,$0.97,35.0,FTL,5.0,8.0
+end,,,,,,,,
+San Diego (CA),Atlanta (GA),2169.0,Loaded,$2.01,164.0,FTL,1.0,5.0
+Atlanta (GA),San Diego (CA),2169.0,Loaded,$0.97,35.0,FTL,5.0,8.0
+end,,,,,,,,
+San Diego (CA),Atlanta (GA),2169.0,Loaded,$2.01,164.0,FTL,1.0,5.0
+Atlanta (GA),San Diego (CA),2169.0,Loaded,$0.97,35.0,FTL,5.0,8.0
+end,,,,,,,,

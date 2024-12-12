@@ -1,0 +1,21 @@
+Orig,Dest,Miles,Trip_type,Avg_rate,Loads_Available,Cargo_Type,PickUpDay,DeliveryDay
+Chandler (AZ),Cheyenne (WY),898.0,Loaded,$2.75,71.0,FTL,1.0,2.0
+Cheyenne (WY),Lake Havasu City (AZ),1041.0,Loaded,$0.85,24.0,FTL,2.0,4.0
+Lake Havasu City (AZ),Chandler (AZ),167.0,Loaded,$4.08,88.0,FTL,4.0,4.0
+end,,,,,,,,
+Chandler (AZ),Cheyenne (WY),898.0,Loaded,$2.75,71.0,FTL,1.0,2.0
+Cheyenne (WY),Lake Havasu City (AZ),1041.0,Loaded,$0.85,24.0,FTL,2.0,4.0
+Lake Havasu City (AZ),Chandler (AZ),167.0,Loaded,$4.08,88.0,FTL,4.0,4.0
+end,,,,,,,,
+Chandler (AZ),Cheyenne (WY),898.0,Loaded,$2.75,71.0,FTL,1.0,2.0
+Cheyenne (WY),Lake Havasu City (AZ),1041.0,Loaded,$0.85,24.0,FTL,2.0,4.0
+Lake Havasu City (AZ),Chandler (AZ),167.0,Loaded,$4.08,88.0,FTL,4.0,4.0
+end,,,,,,,,
+Chandler (AZ),Cheyenne (WY),898.0,Loaded,$2.75,71.0,FTL,1.0,2.0
+Cheyenne (WY),Lake Havasu City (AZ),1041.0,Loaded,$0.85,24.0,FTL,2.0,4.0
+Lake Havasu City (AZ),Chandler (AZ),167.0,Loaded,$4.08,88.0,FTL,4.0,4.0
+end,,,,,,,,
+Chandler (AZ),Cheyenne (WY),898.0,Loaded,$2.75,71.0,FTL,1.0,2.0
+Cheyenne (WY),Lake Havasu City (AZ),1041.0,Loaded,$0.85,24.0,FTL,2.0,4.0
+Lake Havasu City (AZ),Chandler (AZ),167.0,Loaded,$4.08,88.0,FTL,4.0,4.0
+end,,,,,,,,

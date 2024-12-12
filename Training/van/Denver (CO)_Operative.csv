@@ -1,0 +1,21 @@
+Orig,Dest,Miles,Trip_type,Avg_rate,Loads_Available,Cargo_Type,PickUpDay,DeliveryDay
+Denver (CO),Houston (TX),1012.0,Loaded,$1.17,39.0,FTL,1.0,3.0
+Houston (TX),Chandler (AZ),1144.0,Loaded,$1.04,33.0,FTL,3.0,5.0
+Chandler (AZ),Denver (CO),809.0,Loaded,$2.75,76.0,FTL,5.0,6.0
+end,,,,,,,,
+Denver (CO),Houston (TX),1024.0,Loaded,$1.73,7.0,FTL,1.0,3.0
+Houston (TX),Chandler (AZ),1125.0,Loaded,$1.36,17.0,FTL,3.0,5.0
+Chandler (AZ),Denver (CO),1237.0,Loaded,$2.47,65.0,FTL,5.0,7.0
+end,,,,,,,,
+Denver (CO),Houston (TX),1012.0,Loaded,$1.17,39.0,FTL,1.0,3.0
+Houston (TX),Chandler (AZ),1144.0,Loaded,$1.04,33.0,FTL,3.0,5.0
+Chandler (AZ),Denver (CO),809.0,Loaded,$2.75,76.0,FTL,5.0,6.0
+end,,,,,,,,
+Denver (CO),Houston (TX),1012.0,Loaded,$1.17,39.0,FTL,1.0,3.0
+Houston (TX),Chandler (AZ),1144.0,Loaded,$1.04,33.0,FTL,3.0,5.0
+Chandler (AZ),Denver (CO),809.0,Loaded,$2.75,76.0,FTL,5.0,6.0
+end,,,,,,,,
+Denver (CO),Houston (TX),1012.0,Loaded,$1.17,39.0,FTL,1.0,3.0
+Houston (TX),Chandler (AZ),1144.0,Loaded,$1.04,33.0,FTL,3.0,5.0
+Chandler (AZ),Denver (CO),809.0,Loaded,$2.75,76.0,FTL,5.0,6.0
+end,,,,,,,,

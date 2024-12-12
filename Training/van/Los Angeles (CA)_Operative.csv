@@ -1,0 +1,16 @@
+Orig,Dest,Miles,Trip_type,Avg_rate,Loads_Available,Cargo_Type,PickUpDay,DeliveryDay
+Los Angeles (CA),Atlanta (GA),2172.0,Loaded,$2.02,157.0,FTL,1.0,5.0
+Atlanta (GA),Los Angeles (CA),2173.0,Loaded,$0.97,37.0,FTL,5.0,8.0
+end,,,,,,,,
+Los Angeles (CA),Atlanta (GA),2172.0,Loaded,$2.02,157.0,FTL,1.0,5.0
+Atlanta (GA),Los Angeles (CA),2173.0,Loaded,$0.97,37.0,FTL,5.0,8.0
+end,,,,,,,,
+Los Angeles (CA),Atlanta (GA),2172.0,Loaded,$2.02,157.0,FTL,1.0,5.0
+Atlanta (GA),Los Angeles (CA),2173.0,Loaded,$0.97,37.0,FTL,5.0,8.0
+end,,,,,,,,
+Los Angeles (CA),Atlanta (GA),2172.0,Loaded,$2.02,157.0,FTL,1.0,5.0
+Atlanta (GA),Los Angeles (CA),2173.0,Loaded,$0.97,37.0,FTL,5.0,8.0
+end,,,,,,,,
+Los Angeles (CA),Atlanta (GA),2172.0,Loaded,$2.02,157.0,FTL,1.0,5.0
+Atlanta (GA),Los Angeles (CA),2173.0,Loaded,$0.97,37.0,FTL,5.0,8.0
+end,,,,,,,,

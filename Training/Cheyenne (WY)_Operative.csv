@@ -1,0 +1,21 @@
+Orig,Dest,Miles,Trip_type,Avg_rate,Loads_Available,Cargo_Type,PickUpDay,DeliveryDay
+Cheyenne (WY),Eau Claire (WI),916.0,Loaded,$1.01,17.0,FTL,1.0,2.0
+Eau Claire (WI),Atlanta (GA),1034.0,Loaded,$1.93,116.0,FTL,2.0,4.0
+Atlanta (GA),Cheyenne (WY),1446.0,Loaded,$1.57,30.0,FTL,4.0,7.0
+end,,,,,,,,
+Cheyenne (WY),Eau Claire (WI),916.0,Loaded,$1.01,17.0,FTL,1.0,2.0
+Eau Claire (WI),Atlanta (GA),1034.0,Loaded,$1.93,116.0,FTL,2.0,4.0
+Atlanta (GA),Cheyenne (WY),1446.0,Loaded,$1.57,30.0,FTL,4.0,7.0
+end,,,,,,,,
+Cheyenne (WY),Eau Claire (WI),916.0,Loaded,$1.01,17.0,FTL,1.0,2.0
+Eau Claire (WI),Atlanta (GA),1034.0,Loaded,$1.93,116.0,FTL,2.0,4.0
+Atlanta (GA),Cheyenne (WY),1446.0,Loaded,$1.57,30.0,FTL,4.0,7.0
+end,,,,,,,,
+Cheyenne (WY),Eau Claire (WI),916.0,Loaded,$1.01,17.0,FTL,1.0,2.0
+Eau Claire (WI),Atlanta (GA),1034.0,Loaded,$1.93,116.0,FTL,2.0,4.0
+Atlanta (GA),Cheyenne (WY),1446.0,Loaded,$1.57,30.0,FTL,4.0,7.0
+end,,,,,,,,
+Cheyenne (WY),Eau Claire (WI),916.0,Loaded,$1.01,17.0,FTL,1.0,2.0
+Eau Claire (WI),Atlanta (GA),1034.0,Loaded,$1.93,116.0,FTL,2.0,4.0
+Atlanta (GA),Cheyenne (WY),1446.0,Loaded,$1.57,30.0,FTL,4.0,7.0
+end,,,,,,,,
