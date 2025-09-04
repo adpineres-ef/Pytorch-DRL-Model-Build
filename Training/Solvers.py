@@ -14,13 +14,14 @@ import math
 import os
 
 
-def generate_optimal_route_pytorch(agent, start_node, time_matrix, reward_matrix, max_steps=2*NUM_NODES):
+def generate_optimal_route_pytorch(agent, start_node, time_matrix, reward_matrix, NUM_NODES,MAX_DURATION,MIN_DURATION):
         """
         Generates a route using the learned policy (greedy selection),
         preventing revisits to intermediate nodes.
         If max_steps is reached, attempts forced return if valid.
         Validates final duration window.
         """
+        max_steps=2*NUM_NODES  # Allow up to twice the number of nodes in steps
         agent.epsilon = 0
         agent.policy_net.eval()
         current_node = start_node

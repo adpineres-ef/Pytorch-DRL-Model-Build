@@ -13,7 +13,7 @@ import pulp
 import math
 import os
 from Solvers import generate_optimal_route_pytorch, solve_mip, solve_heuristic, solve_regret2_heuristic, solve_lp_relaxation
-
+summary_rows = []
 for NUM_NODES in [5,10,15,20,25]:
     #set input dates
     date = "_2024-12-09"
@@ -573,7 +573,22 @@ for NUM_NODES in [5,10,15,20,25]:
 
         results.append(result_row)
     results_df = pd.DataFrame(results)
+    # Average Rewards and Gaps
+    avg_lp_bound = results_df['LP Upper Bound'].mean()
+    avg_mip_reward = results_df.loc[results_df['MIP Valid'], 'MIP Reward'].mean()
+    avg_drl_reward = results_df.loc[results_df['DRL Valid'], 'DRL Reward'].mean()
+    avg_heu_reward = results_df.loc[results_df['Heuristic Valid'], 'Heuristic Reward'].mean()
+    avg_regret2_reward = results_df.loc[results_df['Regret2 Valid'], 'Regret2 Reward'].mean()
+    summary_rows.append({
+        'Node Size': NUM_NODES,
+        'LP Upper Bound': avg_lp_bound,
+        'MIP Avg Reward': avg_mip_reward,
+        'DRL Avg Reward': avg_drl_reward,
+        'Heuristic Avg Reward': avg_heu_reward,
+        'Regret2 Avg Reward': avg_regret2_reward
+    })
     # Format gaps for display
     results_df['DRL Gap (%)'] = results_df['DRL Gap (%)'].map('{:.1f}'.format, na_action='ignore')
     results_df['Heuristic Gap (%)'] = results_df['Heuristic Gap (%)'].map('{:.1f}'.format, na_action='ignore')
-    
+node_summary_df = pd.DataFrame(summary_rows)
+node_summary_df.to_excel("DRL_Routing_Summary.xlsx", index=False)
