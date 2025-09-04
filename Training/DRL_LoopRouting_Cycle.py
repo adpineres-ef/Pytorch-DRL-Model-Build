@@ -9,10 +9,10 @@ import random
 from collections import deque, namedtuple
 import matplotlib.pyplot as plt
 import time
-import pulp 
-import math
 import os
 from Solvers import generate_optimal_route_pytorch, solve_mip, solve_heuristic, solve_regret2_heuristic, solve_lp_relaxation
+import warnings
+warnings.filterwarnings("ignore")
 summary_rows = []
 for NUM_NODES in [5,10,15,20,25]:
     #set input dates
