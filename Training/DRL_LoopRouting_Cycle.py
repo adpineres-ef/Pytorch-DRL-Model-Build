@@ -14,20 +14,23 @@ from Solvers import generate_optimal_route_pytorch, solve_mip, solve_heuristic, 
 import warnings
 warnings.filterwarnings("ignore")
 summary_rows = []
-for NUM_NODES in [5,10,15,20,25]:
+for NUM_NODES in [10,15,20,25]:
+    print("Nodes:",NUM_NODES)
     #set input dates
     date = "_2024-12-09"
     truck = "VAN"
     mpg = 6.5
-
-    # Specify the file name
-    file_name1 = "rate_q2_west_"+truck+date+".csv"
-    file_name2 = "duration_west.csv"
-    file_name3 = "prob_west_"+truck+date+".csv"
-    file_name4 = "load_av_west_"+truck+date+".csv"
-    file_name5 = "distance_west.csv"
-    file_name6 = "diesel_west"+date+".csv"
-    file_name7 = "labels_west.csv"
+    # Get current working directory
+    cwd = "C://GitHub//Pytorch-DRL-Model-Build//Training"
+    print("Current working directory:", cwd)
+    # Build file paths relative to current directory
+    file_name1 = os.path.join(cwd, f"rate_q2_west_{truck}{date}.csv")
+    file_name2 = os.path.join(cwd, "duration_west.csv")
+    file_name3 = os.path.join(cwd, f"prob_west_{truck}{date}.csv")
+    file_name4 = os.path.join(cwd, f"load_av_west_{truck}{date}.csv")
+    file_name5 = os.path.join(cwd, "distance_west.csv")
+    file_name6 = os.path.join(cwd, f"diesel_west{date}.csv")
+    file_name7 = os.path.join(cwd, "labels_west.csv")
     # Read the Excel file into a DataFrame
     rate_matrix = pd.read_csv(file_name1,header= None)
     time_matrix = pd.read_csv(file_name2,header = None)
@@ -503,7 +506,7 @@ for NUM_NODES in [5,10,15,20,25]:
         
         # Solve with DRL
         t0 = time.time()
-        drl_route, drl_reward, drl_duration = generate_optimal_route_pytorch(drl_agent, s_node, time_matrix, reward_matrix)
+        drl_route, drl_reward, drl_duration = generate_optimal_route_pytorch(drl_agent, s_node, time_matrix, reward_matrix,NUM_NODES,MAX_DURATION,MIN_DURATION)
         drl_inference_times.append(time.time() - t0)
         result_row['DRL Route'] = drl_route
         result_row['DRL Reward'] = drl_reward if drl_route else -np.inf
