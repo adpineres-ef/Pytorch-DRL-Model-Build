@@ -255,23 +255,38 @@ for NUM_NODES in [10,15,20,25]:
             except Exception as e:
                 print(f"Error saving model weights: {e}")
     import optuna
-
+    def get_optuna_episodes(num_nodes):
+        if num_nodes <= 10:
+            return 2000
+        elif num_nodes <= 15:
+            return 4000
+        elif num_nodes <= 20:
+            return 8000
+        else:
+            return 12000
     def objective(trial):
-        # Suggest hyperparameters
-        learning_rate = trial.suggest_loguniform('learning_rate', 1e-5, 1e-2)
-        gamma = trial.suggest_uniform('gamma', 0.90, 0.99)
-        epsilon_start = trial.suggest_uniform('epsilon_start', 0.8, 1.0)
-        epsilon_end = trial.suggest_uniform('epsilon_end', 0.01, 0.2)
-        epsilon_decay_steps = trial.suggest_int('epsilon_decay_steps', NUM_NODES*5000, NUM_NODES*50000)
-        buffer_size = trial.suggest_int('buffer_size', 5000, 50000)
-        batch_size = trial.suggest_int('batch_size', 16, 128)
-        num_episodes = trial.suggest_int('num_episodes', 2000, 20000)
-        max_steps_per_episode = trial.suggest_int('max_steps_per_episode', NUM_NODES, NUM_NODES*5)
-        target_update_freq = trial.suggest_int('target_update_freq', 10, 200)
-        # QNetwork sizes
-        hidden1 = trial.suggest_int('hidden1', max(64, NUM_NODES*4), max(512, NUM_NODES*32))
-        hidden2 = trial.suggest_int('hidden2', max(64, NUM_NODES*4), max(512, NUM_NODES*32))
-        hidden3 = trial.suggest_int('hidden3', max(32, NUM_NODES*2), max(256, NUM_NODES*16))
+        # Set fixed random seed for reproducibility
+        num_episodes = get_optuna_episodes(NUM_NODES)
+        seed = 42
+        random.seed(seed)
+        np.random.seed(seed)
+        torch.manual_seed(seed)
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed(seed)
+
+        # Suggest hyperparameters (narrowed ranges if needed)
+        learning_rate = trial.suggest_loguniform('learning_rate', 5e-5, 5e-4)
+        gamma = trial.suggest_float('gamma', 0.93, 0.97)
+        epsilon_start = trial.suggest_float('epsilon_start', 0.95, 1.0)
+        epsilon_end = trial.suggest_float('epsilon_end', 0.03, 0.07)
+        epsilon_decay_steps = trial.suggest_int('epsilon_decay_steps', int(0.8*EPSILON_DECAY_STEPS), int(1.2*EPSILON_DECAY_STEPS))
+        buffer_size = trial.suggest_int('buffer_size', 8000, 15000)
+        batch_size = trial.suggest_int('batch_size', 24, 40)
+        max_steps_per_episode = trial.suggest_int('max_steps_per_episode', int(0.8*MAX_STEPS_PER_EPISODE), int(1.2*MAX_STEPS_PER_EPISODE))
+        target_update_freq = trial.suggest_int('target_update_freq', 40, 60)
+        hidden1 = trial.suggest_int('hidden1', max(64, NUM_NODES*4), max(256, NUM_NODES*16))
+        hidden2 = trial.suggest_int('hidden2', max(64, NUM_NODES*4), max(256, NUM_NODES*16))
+        hidden3 = trial.suggest_int('hidden3', max(32, NUM_NODES*2), max(128, NUM_NODES*8))
 
         # Define QNetwork with trial sizes
         class QNetworkOptuna(nn.Module):
@@ -294,7 +309,6 @@ for NUM_NODES in [10,15,20,25]:
                 x = F.relu(self.bn3(self.fc3(x)))
                 return self.fc4(x)
 
-        # Minimal agent for tuning
         class DQNAgentOptuna(DQNAgent_PyTorch):
             def __init__(self, state_size, action_size, device):
                 super().__init__(
@@ -310,13 +324,13 @@ for NUM_NODES in [10,15,20,25]:
             def decay_epsilon(self, current_step):
                 self.epsilon = max(epsilon_end, epsilon_start - (epsilon_start - epsilon_end) * (current_step / epsilon_decay_steps))
 
-        # Run a short training loop for evaluation
         agent = DQNAgentOptuna(STATE_SIZE, ACTION_SPACE_SIZE, device)
-        avg_rewards = []
         total_steps = 0
+        rewards = []
+
+        # Training phase
         for ep in range(num_episodes):
-            #start_node = random.randint(0, NUM_NODES-1)
-            start_node = 0
+            start_node = 0  # Fixed for reproducibility
             current_node = start_node
             time_elapsed = 0.0
             state = np.array([current_node, time_elapsed / MAX_DURATION], dtype=np.float32)
@@ -355,12 +369,49 @@ for NUM_NODES in [10,15,20,25]:
                 if done:
                     episode_reward += terminal_reward
                     break
-            avg_rewards.append(episode_reward)
-            # Early stopping for speed
-            if ep > 100 and np.mean(avg_rewards[-50:]) < 0.1:
-                break
-        # Return mean reward over last 50 episodes
-        return np.mean(avg_rewards[-50:])
+            rewards.append(episode_reward)
+
+        # Validation phase (evaluate on fixed start node, no exploration)
+        agent.epsilon = 0.0
+        val_rewards = []
+        for _ in range(10):
+            start_node = 0
+            current_node = start_node
+            time_elapsed = 0.0
+            state = np.array([current_node, time_elapsed / MAX_DURATION], dtype=np.float32)
+            episode_reward = 0
+            for step in range(max_steps_per_episode):
+                action = agent.act(state)
+                next_node = action
+                step_time = time_matrix[current_node][next_node]
+                step_reward = reward_matrix[current_node][next_node] / REWARD_SCALE_FACTOR
+                next_time_elapsed = time_elapsed + step_time
+                next_state = np.array([next_node, min(next_time_elapsed, MAX_DURATION) / MAX_DURATION], dtype=np.float32)
+                terminal_reward = 0
+                done = False
+                if next_node == start_node:
+                    if MIN_DURATION <= next_time_elapsed <= MAX_DURATION:
+                        terminal_reward = RETURN_SUCCESS_BONUS
+                        done = True
+                    elif next_time_elapsed < MIN_DURATION:
+                        terminal_reward = INCOMPLETE_PENALTY
+                        done = True
+                    else:
+                        terminal_reward = TIME_VIOLATION_PENALTY
+                        done = True
+                elif next_time_elapsed > MAX_DURATION:
+                    terminal_reward = TIME_VIOLATION_PENALTY
+                    done = True
+                episode_reward += step_reward
+                if done:
+                    episode_reward += terminal_reward
+                    break
+                state = next_state
+                current_node = next_node
+                time_elapsed = next_time_elapsed
+            val_rewards.append(episode_reward)
+
+        return np.mean(val_rewards)
 
     study = optuna.create_study(direction='maximize')
     study.optimize(objective, n_trials=50)
@@ -374,10 +425,23 @@ for NUM_NODES in [10,15,20,25]:
     EPSILON_DECAY_STEPS = best['epsilon_decay_steps']
     BUFFER_SIZE = best['buffer_size']
     BATCH_SIZE = best['batch_size']
-    NUM_EPISODES = best['num_episodes']
     MAX_STEPS_PER_EPISODE = best['max_steps_per_episode']
     TARGET_UPDATE_FREQ = best['target_update_freq']
 
+    def get_num_episodes(num_nodes):
+        # You can tune this formula based on your experiments
+        if num_nodes <= 10:
+            return 20000
+        elif num_nodes <= 15:
+            return 50000
+        elif num_nodes <= 20:
+            return 100000
+        else:
+            return 150000
+
+    # After Optuna optimization:
+    NUM_EPISODES = get_num_episodes(NUM_NODES)
+    
     def get_qnetwork_sizes(num_nodes):
         hidden1 = best['hidden1']
         hidden2 = best['hidden2']
