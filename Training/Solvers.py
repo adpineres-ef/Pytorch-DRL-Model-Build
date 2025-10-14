@@ -390,3 +390,51 @@ def solve_regret2_heuristic(start_node, time_m, reward_m, min_d, max_d, num_n):
     is_valid = route[-1] == start_node and min_d <= time_elapsed <= max_d
     status = "Optimal" if is_valid else "Infeasible"
     return status, route, total_reward, time_elapsed, is_valid
+
+def solve_2opt_heuristic(start_node, time_m, reward_m, min_d, max_d, num_n):
+    """
+    2-opt metaheuristic: Improves an initial feasible route by swapping two edges at a time.
+    """
+    # --- Step 1: Get initial feasible route (use greedy heuristic) ---
+    status, route, total_reward, total_time, is_valid = solve_heuristic(
+        start_node, time_m, reward_m, min_d, max_d, num_n
+    )
+    if not is_valid:
+        return status, route, total_reward, total_time, is_valid
+
+    best_route = route[:]
+    best_reward = total_reward
+    best_time = total_time
+    improved = True
+
+    while improved:
+        improved = False
+        # Try all possible 2-opt swaps (skip start/end node)
+        for i in range(1, len(best_route) - 2):
+            for j in range(i + 1, len(best_route) - 1):
+                # Create new route by reversing segment between i and j
+                new_route = (
+                    best_route[:i] +
+                    best_route[i:j+1][::-1] +
+                    best_route[j+1:]
+                )
+                # Compute total time and reward for new route
+                new_time = 0.0
+                new_reward = 0.0
+                for k in range(len(new_route) - 1):
+                    new_time += time_m[new_route[k]][new_route[k+1]]
+                    new_reward += reward_m[new_route[k]][new_route[k+1]]
+                # Check feasibility
+                if min_d <= new_time <= max_d and new_route[0] == start_node and new_route[-1] == start_node:
+                    if new_reward > best_reward:
+                        best_route = new_route
+                        best_reward = new_reward
+                        best_time = new_time
+                        improved = True
+                        break  # Accept first improvement (first-improvement strategy)
+            if improved:
+                break
+
+    is_valid = min_d <= best_time <= max_d and best_route[0] == start_node and best_route[-1] == start_node
+    status = "Optimal" if is_valid else "Infeasible"
+    return status, best_route, best_reward, best_time, is_valid

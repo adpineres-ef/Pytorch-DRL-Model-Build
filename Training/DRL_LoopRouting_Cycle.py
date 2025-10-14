@@ -10,7 +10,7 @@ from collections import deque, namedtuple
 import matplotlib.pyplot as plt
 import time
 import os
-from Solvers import generate_optimal_route_pytorch, solve_mip, solve_heuristic, solve_regret2_heuristic, solve_lp_relaxation
+from Solvers import generate_optimal_route_pytorch, solve_mip, solve_heuristic, solve_regret2_heuristic, solve_lp_relaxation,solve_2opt_heuristic
 import warnings
 warnings.filterwarnings("ignore")
 summary_rows = []
@@ -601,12 +601,12 @@ for NUM_NODES in [10,15,20,25]:
 
         t0 = time.time()
         # Use original reward matrix for heuristic evaluation
-        reg_status, reg_route, reg_reward, reg_duration, reg_valid = solve_regret2_heuristic(s_node, time_matrix, reward_matrix, MIN_DURATION, MAX_DURATION, NUM_NODES)
+        reg_status, reg_route, reg_reward, reg_duration, reg_valid = solve_2opt_heuristic(s_node, time_matrix, reward_matrix, MIN_DURATION, MAX_DURATION, NUM_NODES)
         heuristic2_times.append(time.time() - t0)
-        result_row['Regret2 Route'] = reg_route
-        result_row['Regret2 Reward'] = reg_reward if reg_valid else (reg_reward if reg_route else -np.inf)
-        result_row['Regret2 Duration'] = reg_duration if reg_route else np.inf
-        result_row['Regret2 Valid'] = reg_valid
+        result_row['2Opt Route'] = reg_route
+        result_row['2Opt Reward'] = reg_reward if reg_valid else (reg_reward if reg_route else -np.inf)
+        result_row['2Opt Duration'] = reg_duration if reg_route else np.inf
+        result_row['2Opt Valid'] = reg_valid
         # Add gap calculations as for other heuristics
         
         # Calculate Optimality Gaps (relative to MIP if MIP is optimal)
@@ -614,7 +614,7 @@ for NUM_NODES in [10,15,20,25]:
         if result_row['MIP Valid']:
             drl_gap = ((mip_opt_reward - result_row['DRL Reward']) / abs(mip_opt_reward)) * 100 if abs(mip_opt_reward) > 1e-6 and result_row['DRL Valid'] else float('nan')
             heu_gap = ((mip_opt_reward - result_row['Heuristic Reward']) / abs(mip_opt_reward)) * 100 if abs(mip_opt_reward) > 1e-6 and result_row['Heuristic Valid'] else float('nan')
-            reg_gap = ((mip_opt_reward - result_row['Regret2 Reward']) / abs(mip_opt_reward)) * 100 if abs(mip_opt_reward) > 1e-6 and reg_valid else float('nan')
+            reg_gap = ((mip_opt_reward - result_row['2Opt Reward']) / abs(mip_opt_reward)) * 100 if abs(mip_opt_reward) > 1e-6 and reg_valid else float('nan')
         else:
             drl_gap = float('nan')
             heu_gap = float('nan')
@@ -624,7 +624,7 @@ for NUM_NODES in [10,15,20,25]:
             mip_lp_gap = ((lp_bound - result_row['MIP Reward']) / abs(lp_bound)) * 100 if result_row['MIP Valid'] else float('nan')
             drl_lp_gap = ((lp_bound - result_row['DRL Reward']) / abs(lp_bound)) * 100 if result_row['DRL Valid'] else float('nan')
             heu_lp_gap = ((lp_bound - result_row['Heuristic Reward']) / abs(lp_bound)) * 100 if result_row['Heuristic Valid'] else float('nan')
-            reg_lp_gap = ((lp_bound - result_row['Regret2 Reward']) / abs(lp_bound)) * 100 if reg_valid else float('nan')
+            reg_lp_gap = ((lp_bound - result_row['2Opt Reward']) / abs(lp_bound)) * 100 if reg_valid else float('nan')
         else:
             mip_lp_gap = float('nan')
             drl_lp_gap = float('nan')
@@ -633,10 +633,10 @@ for NUM_NODES in [10,15,20,25]:
         result_row['MIP-LP Gap (%)'] = mip_lp_gap
         result_row['DRL-LP Gap (%)'] = drl_lp_gap
         result_row['Heuristic-LP Gap (%)'] = heu_lp_gap
-        result_row['Regret2-LP Gap (%)'] = reg_lp_gap
+        result_row['2Opt-LP Gap (%)'] = reg_lp_gap
         result_row['DRL Gap (%)'] = drl_gap
         result_row['Heuristic Gap (%)'] = heu_gap
-        result_row['Regret2 Gap (%)'] = reg_gap
+        result_row['2Opt Gap (%)'] = reg_gap
 
         results.append(result_row)
     results_df = pd.DataFrame(results)
@@ -645,17 +645,17 @@ for NUM_NODES in [10,15,20,25]:
     avg_mip_reward = results_df.loc[results_df['MIP Valid'], 'MIP Reward'].mean()
     avg_drl_reward = results_df.loc[results_df['DRL Valid'], 'DRL Reward'].mean()
     avg_heu_reward = results_df.loc[results_df['Heuristic Valid'], 'Heuristic Reward'].mean()
-    avg_regret2_reward = results_df.loc[results_df['Regret2 Valid'], 'Regret2 Reward'].mean()
+    avg_regret2_reward = results_df.loc[results_df['2Opt Valid'], '2Opt Reward'].mean()
     summary_rows.append({
         'Node Size': NUM_NODES,
         'LP Upper Bound': avg_lp_bound,
         'MIP Avg Reward': avg_mip_reward,
         'DRL Avg Reward': avg_drl_reward,
         'Heuristic Avg Reward': avg_heu_reward,
-        'Regret2 Avg Reward': avg_regret2_reward
+        '2Opt Avg Reward': avg_regret2_reward
     })
     # Format gaps for display
     results_df['DRL Gap (%)'] = results_df['DRL Gap (%)'].map('{:.1f}'.format, na_action='ignore')
     results_df['Heuristic Gap (%)'] = results_df['Heuristic Gap (%)'].map('{:.1f}'.format, na_action='ignore')
 node_summary_df = pd.DataFrame(summary_rows)
-node_summary_df.to_excel("DRL_Routing_Summary.xlsx", index=False)
+node_summary_df.to_excel("DRL_Routing_Summary_New.xlsx", index=False)
