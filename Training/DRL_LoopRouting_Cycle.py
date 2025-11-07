@@ -14,7 +14,7 @@ from Solvers import generate_optimal_route_pytorch, solve_mip, solve_heuristic, 
 import warnings
 warnings.filterwarnings("ignore")
 summary_rows = []
-for NUM_NODES in [30,40]:
+for NUM_NODES in [40,55]:
     print("Nodes:",NUM_NODES)
     #set input dates
     date = "_2024-12-09"
@@ -92,7 +92,7 @@ for NUM_NODES in [30,40]:
     BUFFER_SIZE = 10000 
     BATCH_SIZE = 32 
 
-    NUM_EPISODES = 60000 
+    NUM_EPISODES = 200000 
     MAX_STEPS_PER_EPISODE = 50
     TARGET_UPDATE_FREQ = 50 
 
@@ -259,11 +259,11 @@ for NUM_NODES in [30,40]:
         if num_nodes <= 10:
             return 4000
         elif num_nodes <= 15:
-            return 6000
-        elif num_nodes <= 20:
             return 10000
+        elif num_nodes <= 20:
+            return 20000
         else:
-            return 15000
+            return 30000
     def objective(trial):
         # Set fixed random seed for reproducibility
         num_episodes = get_optuna_episodes(NUM_NODES)
@@ -435,9 +435,11 @@ for NUM_NODES in [30,40]:
         elif num_nodes <= 15:
             return 70000
         elif num_nodes <= 20:
-            return 120000
-        else:
             return 200000
+        elif num_nodes <= 40:
+            return 300000
+        else:
+            return 400000
 
     # After Optuna optimization:
     NUM_EPISODES = get_num_episodes(NUM_NODES)
