@@ -10,14 +10,14 @@ import pulp
 
 
 
-def generate_optimal_route_pytorch(agent, start_node, time_matrix, reward_matrix, NUM_NODES,MAX_DURATION,MIN_DURATION):
+def generate_optimal_route_pytorch(agent, start_node, time_matrix, reward_matrix, NUM_NODES,MAX_DURATION,MIN_DURATION,MAX_STEPS_PER_EPISODE):
         """
         Generates a route using the learned policy (greedy selection),
         preventing revisits to intermediate nodes.
         If max_steps is reached, attempts forced return if valid.
         Validates final duration window.
         """
-        max_steps=2*NUM_NODES  # Allow up to twice the number of nodes in steps
+        max_steps=MAX_STEPS_PER_EPISODE
         agent.epsilon = 0
         agent.policy_net.eval()
         current_node = start_node
@@ -160,6 +160,9 @@ def solve_mip(start_node, time_m, reward_m, min_d, max_d, num_n):
     total_time = pulp.lpSum(time_m[i][j] * x[i][j] for i in nodes for j in nodes if i != j)
     prob += total_time >= min_d
     prob += total_time <= max_d
+
+    # 2b. Maximum steps constraint (total number of arcs used <= 5)
+    prob += pulp.lpSum(x[i][j] for i in nodes for j in nodes if i != j) <= 5
 
     # 3. Subtour Elimination (MTZ)
     for i in other_nodes:

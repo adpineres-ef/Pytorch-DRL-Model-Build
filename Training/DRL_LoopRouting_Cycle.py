@@ -14,7 +14,7 @@ from Solvers import generate_optimal_route_pytorch, solve_mip, solve_heuristic, 
 import warnings
 warnings.filterwarnings("ignore")
 summary_rows = []
-for NUM_NODES in [40,55]:
+for NUM_NODES in [10,15,20,25]:
     print("Nodes:",NUM_NODES)
     #set input dates
     date = "_2024-12-09"
@@ -93,7 +93,7 @@ for NUM_NODES in [40,55]:
     BATCH_SIZE = 32 
 
     NUM_EPISODES = 200000 
-    MAX_STEPS_PER_EPISODE = 50
+    MAX_STEPS_PER_EPISODE = 6
     TARGET_UPDATE_FREQ = 50 
 
     REWARD_SCALE_FACTOR = 100.0
@@ -594,7 +594,7 @@ for NUM_NODES in [40,55]:
         # Solve with Heuristic
         t0 = time.time()
         # Use original reward matrix for heuristic evaluation
-        heu_status, heu_route, heu_reward, heu_duration, heu_valid = solve_heuristic(s_node, time_matrix, reward_matrix, MIN_DURATION, MAX_DURATION, NUM_NODES)
+        heu_status, heu_route, heu_reward, heu_duration, heu_valid = solve_heuristic(s_node, time_matrix, reward_matrix, MIN_DURATION, MAX_DURATION, NUM_NODES,MAX_STEPS_PER_EPISODE)
         heuristic_times.append(time.time() - t0)
         result_row['Heuristic Route'] = heu_route
         result_row['Heuristic Reward'] = heu_reward if heu_valid else (heu_reward if heu_route else -np.inf) # Show reward even if duration invalid
