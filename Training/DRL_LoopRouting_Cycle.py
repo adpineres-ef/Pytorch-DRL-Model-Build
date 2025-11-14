@@ -572,7 +572,7 @@ for NUM_NODES in [10,15,20,25]:
         
         # Solve with DRL
         t0 = time.time()
-        drl_route, drl_reward, drl_duration = generate_optimal_route_pytorch(drl_agent, s_node, time_matrix, reward_matrix,NUM_NODES,MAX_DURATION,MIN_DURATION)
+        drl_route, drl_reward, drl_duration = generate_optimal_route_pytorch(drl_agent, s_node, time_matrix, reward_matrix,NUM_NODES,MAX_DURATION,MIN_DURATION,MAX_STEPS_PER_EPISODE)
         drl_inference_times.append(time.time() - t0)
         result_row['DRL Route'] = drl_route
         result_row['DRL Reward'] = drl_reward if drl_route else -np.inf
@@ -594,7 +594,7 @@ for NUM_NODES in [10,15,20,25]:
         # Solve with Heuristic
         t0 = time.time()
         # Use original reward matrix for heuristic evaluation
-        heu_status, heu_route, heu_reward, heu_duration, heu_valid = solve_heuristic(s_node, time_matrix, reward_matrix, MIN_DURATION, MAX_DURATION, NUM_NODES,MAX_STEPS_PER_EPISODE)
+        heu_status, heu_route, heu_reward, heu_duration, heu_valid = solve_heuristic(s_node, time_matrix, reward_matrix, MIN_DURATION, MAX_DURATION, NUM_NODES)
         heuristic_times.append(time.time() - t0)
         result_row['Heuristic Route'] = heu_route
         result_row['Heuristic Reward'] = heu_reward if heu_valid else (heu_reward if heu_route else -np.inf) # Show reward even if duration invalid
