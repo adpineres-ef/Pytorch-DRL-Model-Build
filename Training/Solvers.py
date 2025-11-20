@@ -258,8 +258,8 @@ def solve_heuristic(start_node, time_m, reward_m, min_d, max_d, num_n):
     route = [start_node]
     visited = {start_node}
     return_threshold = 0.85 * max_d
-
-    while True:  # Continue until we break
+    steps = 0
+    while True and steps <5:  # Continue until we break
         # Find next highest reward move
         best_reward = -np.inf
         best_next_node = None
@@ -284,6 +284,7 @@ def solve_heuristic(start_node, time_m, reward_m, min_d, max_d, num_n):
             current_node = best_next_node
             route.append(current_node)
             visited.add(current_node)
+            steps += 1
         else:
             # No more valid moves, return home
             return_time = time_m[current_node][start_node]
@@ -291,6 +292,7 @@ def solve_heuristic(start_node, time_m, reward_m, min_d, max_d, num_n):
                 time_elapsed += return_time
                 total_reward += reward_m[current_node][start_node]
                 route.append(start_node)
+                steps += 1
             break
         # If we've reached the time threshold, try to return home
         if time_elapsed >= return_threshold:
@@ -298,6 +300,7 @@ def solve_heuristic(start_node, time_m, reward_m, min_d, max_d, num_n):
             time_elapsed += return_time
             total_reward += reward_m[current_node][start_node]
             route.append(start_node)
+            steps += 1
             break
     # Final validation
     is_valid = False
