@@ -14,7 +14,7 @@ from Solvers import generate_optimal_route_pytorch, solve_mip, solve_heuristic, 
 import warnings
 warnings.filterwarnings("ignore")
 summary_rows = []
-for NUM_NODES in [10,15,20,25]:
+for NUM_NODES in [15,20,25,30,40,50]:
     print("Nodes:",NUM_NODES)
     #set input dates
     date = "_2024-12-09"
@@ -60,7 +60,7 @@ for NUM_NODES in [10,15,20,25]:
     BIG_M_PENALTY = -1e9 # Large negative number for rewards
 
     # Use a fixed seed for reproducibility
-    SEED = 42
+    SEED = 43
     random.seed(SEED)
     np.random.seed(SEED)
     torch.manual_seed(SEED)
