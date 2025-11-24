@@ -14,7 +14,7 @@ from Solvers import generate_optimal_route_pytorch, solve_mip, solve_heuristic, 
 import warnings
 warnings.filterwarnings("ignore")
 summary_rows = []
-for NUM_NODES in [15,20,25,30,40,50]:
+for NUM_NODES in [50,56]:
     print("Nodes:",NUM_NODES)
     #set input dates
     date = "_2024-12-09"
@@ -107,32 +107,37 @@ for NUM_NODES in [15,20,25,30,40,50]:
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
     def get_qnetwork_sizes(num_nodes):
-        hidden1 = max(128, num_nodes * 8)
-        hidden2 = max(256, num_nodes * 8)
-        hidden3 = max(64, num_nodes * 4)
-        return hidden1, hidden2, hidden3
+        hidden1 = num_nodes*num_nodes
+        hidden2 = num_nodes*num_nodes*2
+        hidden3 = num_nodes*num_nodes*2
+        hidden4 = num_nodes*num_nodes/2
+        return hidden1, hidden2, hidden3, hidden4
 
     class QNetwork(nn.Module):
         def __init__(self, state_size, action_size, num_nodes):
             super(QNetwork, self).__init__()
-            h1, h2, h3 = get_qnetwork_sizes(num_nodes)
+            h1, h2, h3, h4 = get_qnetwork_sizes(num_nodes)
             self.fc1 = nn.Linear(state_size, h1)
             self.bn1 = nn.BatchNorm1d(h1)
             self.fc2 = nn.Linear(h1, h2)
             self.bn2 = nn.BatchNorm1d(h2)
             self.fc3 = nn.Linear(h2, h3)
             self.bn3 = nn.BatchNorm1d(h3)
-            self.fc4 = nn.Linear(h3, action_size)
+            self.fc4 = nn.Linear(h3, h4)
+            self.bn4 = nn.BatchNorm1d(h4)
+            self.fc5 = nn.Linear(h4, action_size)
             nn.init.xavier_uniform_(self.fc1.weight)
             nn.init.xavier_uniform_(self.fc2.weight)
             nn.init.xavier_uniform_(self.fc3.weight)
             nn.init.xavier_uniform_(self.fc4.weight)
+            nn.init.xavier_uniform_(self.fc5.weight)
 
         def forward(self, state):
             x = F.relu(self.bn1(self.fc1(state)))
             x = F.relu(self.bn2(self.fc2(x)))
             x = F.relu(self.bn3(self.fc3(x)))
-            return self.fc4(x)
+            x = F.relu(self.bn4(self.fc4(x)))
+            return self.fc5(x)
 
     class DQNAgent_PyTorch:
         def __init__(self, state_size, action_size, learning_rate, gamma, buffer_size, batch_size, device, num_nodes):
@@ -284,9 +289,10 @@ for NUM_NODES in [15,20,25,30,40,50]:
         batch_size = trial.suggest_int('batch_size', 24, 40)
         max_steps_per_episode = trial.suggest_int('max_steps_per_episode', int(0.8*MAX_STEPS_PER_EPISODE), int(1.2*MAX_STEPS_PER_EPISODE))
         target_update_freq = trial.suggest_int('target_update_freq', 40, 60)
-        hidden1 = trial.suggest_int('hidden1', max(64, NUM_NODES*4), max(256, NUM_NODES*16))
-        hidden2 = trial.suggest_int('hidden2', max(64, NUM_NODES*4), max(256, NUM_NODES*16))
-        hidden3 = trial.suggest_int('hidden3', max(32, NUM_NODES*2), max(128, NUM_NODES*8))
+        hidden1 = trial.suggest_int('hidden1', NUM_NODES*NUM_NODES, NUM_NODES*NUM_NODES*2)
+        hidden2 = trial.suggest_int('hidden2', NUM_NODES*NUM_NODES*2, NUM_NODES*NUM_NODES*4)
+        hidden3 = trial.suggest_int('hidden3', NUM_NODES*NUM_NODES*2, NUM_NODES*NUM_NODES*4)
+        hidden4 = trial.suggest_int('hidden4', NUM_NODES*NUM_NODES/2, NUM_NODES*NUM_NODES)
 
         # Define QNetwork with trial sizes
         class QNetworkOptuna(nn.Module):
@@ -298,17 +304,20 @@ for NUM_NODES in [15,20,25,30,40,50]:
                 self.bn2 = nn.BatchNorm1d(hidden2)
                 self.fc3 = nn.Linear(hidden2, hidden3)
                 self.bn3 = nn.BatchNorm1d(hidden3)
-                self.fc4 = nn.Linear(hidden3, action_size)
+                self.fc4 = nn.Linear(hidden3, hidden4)
+                self.bn4 = nn.BatchNorm1d(hidden4)
+                self.fc5 = nn.Linear(hidden4, action_size)
                 nn.init.xavier_uniform_(self.fc1.weight)
                 nn.init.xavier_uniform_(self.fc2.weight)
                 nn.init.xavier_uniform_(self.fc3.weight)
                 nn.init.xavier_uniform_(self.fc4.weight)
+                nn.init.xavier_uniform_(self.fc5.weight)
             def forward(self, state):
                 x = F.relu(self.bn1(self.fc1(state)))
                 x = F.relu(self.bn2(self.fc2(x)))
                 x = F.relu(self.bn3(self.fc3(x)))
-                return self.fc4(x)
-
+                x = F.relu(self.bn4(self.fc4(x)))
+                return self.fc5(x)
         class DQNAgentOptuna(DQNAgent_PyTorch):
             def __init__(self, state_size, action_size, device):
                 super().__init__(
@@ -439,7 +448,7 @@ for NUM_NODES in [15,20,25,30,40,50]:
         elif num_nodes <= 40:
             return 300000
         else:
-            return 400000
+            return 500000
 
     # After Optuna optimization:
     NUM_EPISODES = get_num_episodes(NUM_NODES)
@@ -448,7 +457,8 @@ for NUM_NODES in [15,20,25,30,40,50]:
         hidden1 = best['hidden1']
         hidden2 = best['hidden2']
         hidden3 = best['hidden3']
-        return hidden1, hidden2, hidden3
+        hidden4 = best['hidden4']
+        return hidden1, hidden2, hidden3, hidden4
 
     # Now create your agent and start training as usual
     drl_agent = DQNAgent_PyTorch(
