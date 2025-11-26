@@ -14,7 +14,7 @@ from Solvers import generate_optimal_route_pytorch, solve_mip, solve_heuristic, 
 import warnings
 warnings.filterwarnings("ignore")
 summary_rows = []
-for NUM_NODES in [50,56]:
+for NUM_NODES in [40,50,55]:
     print("Nodes:",NUM_NODES)
     #set input dates
     date = "_2024-12-09"
@@ -110,7 +110,7 @@ for NUM_NODES in [50,56]:
         hidden1 = num_nodes*num_nodes
         hidden2 = num_nodes*num_nodes*2
         hidden3 = num_nodes*num_nodes*2
-        hidden4 = num_nodes*num_nodes/2
+        hidden4 = int(num_nodes*num_nodes/2)
         return hidden1, hidden2, hidden3, hidden4
 
     class QNetwork(nn.Module):
@@ -292,7 +292,7 @@ for NUM_NODES in [50,56]:
         hidden1 = trial.suggest_int('hidden1', NUM_NODES*NUM_NODES, NUM_NODES*NUM_NODES*2)
         hidden2 = trial.suggest_int('hidden2', NUM_NODES*NUM_NODES*2, NUM_NODES*NUM_NODES*4)
         hidden3 = trial.suggest_int('hidden3', NUM_NODES*NUM_NODES*2, NUM_NODES*NUM_NODES*4)
-        hidden4 = trial.suggest_int('hidden4', NUM_NODES*NUM_NODES/2, NUM_NODES*NUM_NODES)
+        hidden4 = trial.suggest_int('hidden4', int(NUM_NODES*NUM_NODES/2), NUM_NODES*NUM_NODES)
 
         # Define QNetwork with trial sizes
         class QNetworkOptuna(nn.Module):
