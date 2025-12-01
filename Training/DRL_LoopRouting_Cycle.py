@@ -14,7 +14,7 @@ from Solvers import generate_optimal_route_pytorch, solve_mip, solve_heuristic, 
 import warnings
 warnings.filterwarnings("ignore")
 summary_rows = []
-for NUM_NODES in [40,50,55]:
+for NUM_NODES in [10,15,20,25,30,40]:
     print("Nodes:",NUM_NODES)
     #set input dates
     date = "_2024-12-09"
@@ -93,7 +93,7 @@ for NUM_NODES in [40,50,55]:
     BATCH_SIZE = 32 
 
     NUM_EPISODES = 200000 
-    MAX_STEPS_PER_EPISODE = 6
+    MAX_STEPS_PER_EPISODE = 5
     TARGET_UPDATE_FREQ = 50 
 
     REWARD_SCALE_FACTOR = 100.0
@@ -287,7 +287,7 @@ for NUM_NODES in [40,50,55]:
         epsilon_decay_steps = trial.suggest_int('epsilon_decay_steps', int(0.8*EPSILON_DECAY_STEPS), int(1.2*EPSILON_DECAY_STEPS))
         buffer_size = trial.suggest_int('buffer_size', 8000, 15000)
         batch_size = trial.suggest_int('batch_size', 24, 40)
-        max_steps_per_episode = trial.suggest_int('max_steps_per_episode', int(0.8*MAX_STEPS_PER_EPISODE), int(1.2*MAX_STEPS_PER_EPISODE))
+        max_steps_per_episode = trial.suggest_int('max_steps_per_episode', int(0.8*MAX_STEPS_PER_EPISODE), int(1*MAX_STEPS_PER_EPISODE))
         target_update_freq = trial.suggest_int('target_update_freq', 40, 60)
         hidden1 = trial.suggest_int('hidden1', NUM_NODES*NUM_NODES, NUM_NODES*NUM_NODES*2)
         hidden2 = trial.suggest_int('hidden2', NUM_NODES*NUM_NODES*2, NUM_NODES*NUM_NODES*4)
