@@ -278,13 +278,13 @@ for NUM_NODES in [15]:
     import optuna
     def get_optuna_episodes(num_nodes):
         if num_nodes <= 10:
-            return 4000
+            return 3000
         elif num_nodes <= 15:
-            return 6500
+            return 4000
         elif num_nodes <= 20:
-            return 8000
+            return 5000
         else:
-            return 10000
+            return 6000
     def objective(trial):
         # Set fixed random seed for reproducibility
         num_episodes = get_optuna_episodes(NUM_NODES)
