@@ -10,11 +10,11 @@ from collections import deque, namedtuple
 import matplotlib.pyplot as plt
 import time
 import os
-from Solvers import generate_optimal_route_pytorch, solve_mip, solve_heuristic, solve_regret2_heuristic, solve_lp_relaxation,solve_2opt_heuristic
+from Solvers import generate_optimal_route_pytorch, solve_mip, solve_heuristic, solve_lp_relaxation,solve_2opt_heuristic,solve_LNS_metaheuristic,solve_genetic_algorithm
 import warnings
 warnings.filterwarnings("ignore")
 summary_rows = []
-for NUM_NODES in [10,15,20,25,30,40]:
+for NUM_NODES in [15]:
     print("Nodes:",NUM_NODES)
     #set input dates
     date = "_2024-12-09"
@@ -60,14 +60,31 @@ for NUM_NODES in [10,15,20,25,30,40]:
     BIG_M_PENALTY = -1e9 # Large negative number for rewards
 
     # Use a fixed seed for reproducibility
-    SEED = 43
+    SEED = 42
     random.seed(SEED)
     np.random.seed(SEED)
     torch.manual_seed(SEED)
     if torch.cuda.is_available():
         torch.cuda.manual_seed(SEED)
-    time_matrix = time_matrix.iloc[:NUM_NODES, :NUM_NODES]
-    reward_matrix = reward_matrix.iloc[:NUM_NODES, :NUM_NODES]
+    random_geo_graph_switch = 0
+    if random_geo_graph_switch == 1:
+        print(f"Generating RANDOM node data for {NUM_NODES} nodes...")
+        # Randomly select NUM_NODES indices from the full matrix
+        total_nodes = len(time_matrix)
+        selected_indices = np.random.choice(total_nodes, NUM_NODES, replace=False)
+        selected_indices = sorted(selected_indices)
+        
+        # Select BOTH rows and columns using the SAME indices to maintain square structure
+        time_matrix = time_matrix.iloc[selected_indices, selected_indices].reset_index(drop=True)
+        reward_matrix = reward_matrix.iloc[selected_indices, selected_indices].reset_index(drop=True)
+
+        # Reset columns to 0-based indexing
+        time_matrix.columns = range(NUM_NODES)
+        reward_matrix.columns = range(NUM_NODES)
+    else:
+        print(f"Generating NORMAL node data for {NUM_NODES} nodes...")
+        time_matrix = time_matrix.iloc[:NUM_NODES, :NUM_NODES]
+        reward_matrix = reward_matrix.iloc[:NUM_NODES, :NUM_NODES]
     # Round for clarity
     time_matrix = np.round(time_matrix, 1)
     reward_matrix = np.round(reward_matrix, 0)
@@ -92,8 +109,7 @@ for NUM_NODES in [10,15,20,25,30,40]:
     BUFFER_SIZE = 10000 
     BATCH_SIZE = 32 
 
-    NUM_EPISODES = 200000 
-    MAX_STEPS_PER_EPISODE = 5
+    MAX_STEPS_PER_EPISODE = 4
     TARGET_UPDATE_FREQ = 50 
 
     REWARD_SCALE_FACTOR = 100.0
@@ -264,15 +280,15 @@ for NUM_NODES in [10,15,20,25,30,40]:
         if num_nodes <= 10:
             return 4000
         elif num_nodes <= 15:
-            return 10000
+            return 6500
         elif num_nodes <= 20:
-            return 20000
+            return 8000
         else:
-            return 30000
+            return 10000
     def objective(trial):
         # Set fixed random seed for reproducibility
         num_episodes = get_optuna_episodes(NUM_NODES)
-        seed = 42
+        seed = 10
         random.seed(seed)
         np.random.seed(seed)
         torch.manual_seed(seed)
@@ -280,19 +296,19 @@ for NUM_NODES in [10,15,20,25,30,40]:
             torch.cuda.manual_seed(seed)
 
         # Suggest hyperparameters (narrowed ranges if needed)
-        learning_rate = trial.suggest_loguniform('learning_rate', 5e-5, 5e-4)
-        gamma = trial.suggest_float('gamma', 0.93, 0.97)
-        epsilon_start = trial.suggest_float('epsilon_start', 0.95, 1.0)
+        learning_rate = trial.suggest_loguniform('learning_rate', 1.7e-4, 2.5e-4)
+        gamma = trial.suggest_float('gamma', 0.94, 0.96)
+        epsilon_start = trial.suggest_float('epsilon_start', 0.6, 0.8)
         epsilon_end = trial.suggest_float('epsilon_end', 0.03, 0.07)
         epsilon_decay_steps = trial.suggest_int('epsilon_decay_steps', int(0.8*EPSILON_DECAY_STEPS), int(1.2*EPSILON_DECAY_STEPS))
-        buffer_size = trial.suggest_int('buffer_size', 8000, 15000)
-        batch_size = trial.suggest_int('batch_size', 24, 40)
-        max_steps_per_episode = trial.suggest_int('max_steps_per_episode', int(0.8*MAX_STEPS_PER_EPISODE), int(1*MAX_STEPS_PER_EPISODE))
+        buffer_size = trial.suggest_int('buffer_size', 20000, 30000)
+        batch_size = trial.suggest_int('batch_size', 40, 60)
+        max_steps_per_episode = MAX_STEPS_PER_EPISODE
         target_update_freq = trial.suggest_int('target_update_freq', 40, 60)
         hidden1 = trial.suggest_int('hidden1', NUM_NODES*NUM_NODES, NUM_NODES*NUM_NODES*2)
         hidden2 = trial.suggest_int('hidden2', NUM_NODES*NUM_NODES*2, NUM_NODES*NUM_NODES*4)
-        hidden3 = trial.suggest_int('hidden3', NUM_NODES*NUM_NODES*2, NUM_NODES*NUM_NODES*4)
-        hidden4 = trial.suggest_int('hidden4', int(NUM_NODES*NUM_NODES/2), NUM_NODES*NUM_NODES)
+        hidden3 = trial.suggest_int('hidden3', NUM_NODES*NUM_NODES, NUM_NODES*NUM_NODES*4)
+        hidden4 = trial.suggest_int('hidden4', int(NUM_NODES*NUM_NODES/4), NUM_NODES*NUM_NODES)
 
         # Define QNetwork with trial sizes
         class QNetworkOptuna(nn.Module):
@@ -354,11 +370,8 @@ for NUM_NODES in [10,15,20,25,30,40]:
                 terminal_reward = 0
                 done = False
                 if next_node == start_node:
-                    if MIN_DURATION <= next_time_elapsed <= MAX_DURATION:
+                    if next_time_elapsed <= MAX_DURATION:
                         terminal_reward = RETURN_SUCCESS_BONUS
-                        done = True
-                    elif next_time_elapsed < MIN_DURATION:
-                        terminal_reward = INCOMPLETE_PENALTY
                         done = True
                     else:
                         terminal_reward = TIME_VIOLATION_PENALTY
@@ -399,11 +412,8 @@ for NUM_NODES in [10,15,20,25,30,40]:
                 terminal_reward = 0
                 done = False
                 if next_node == start_node:
-                    if MIN_DURATION <= next_time_elapsed <= MAX_DURATION:
+                    if next_time_elapsed <= MAX_DURATION:
                         terminal_reward = RETURN_SUCCESS_BONUS
-                        done = True
-                    elif next_time_elapsed < MIN_DURATION:
-                        terminal_reward = INCOMPLETE_PENALTY
                         done = True
                     else:
                         terminal_reward = TIME_VIOLATION_PENALTY
@@ -434,13 +444,12 @@ for NUM_NODES in [10,15,20,25,30,40]:
     EPSILON_DECAY_STEPS = best['epsilon_decay_steps']
     BUFFER_SIZE = best['buffer_size']
     BATCH_SIZE = best['batch_size']
-    MAX_STEPS_PER_EPISODE = best['max_steps_per_episode']
     TARGET_UPDATE_FREQ = best['target_update_freq']
 
     def get_num_episodes(num_nodes):
         # You can tune this formula based on your experiments
         if num_nodes <= 10:
-            return 20000
+            return 30000
         elif num_nodes <= 15:
             return 70000
         elif num_nodes <= 20:
@@ -483,8 +492,7 @@ for NUM_NODES in [10,15,20,25,30,40]:
     #print(start_node)
     last_reward = 0
     episode = 0
-    counter = 0
-    while episode < NUM_EPISODES and counter < 2:
+    while episode < NUM_EPISODES:
     #for episode in range(NUM_EPISODES):
         start_node = random.randint(0, NUM_NODES-1)
         current_node = start_node
@@ -512,11 +520,8 @@ for NUM_NODES in [10,15,20,25,30,40]:
 
             # Termination checks (Same logic as before)
             if next_node == start_node:
-                if MIN_DURATION <= next_time_elapsed <= MAX_DURATION:
+                if next_time_elapsed <= MAX_DURATION:
                     terminal_reward = RETURN_SUCCESS_BONUS
-                    done = True
-                elif next_time_elapsed < MIN_DURATION:
-                    terminal_reward = INCOMPLETE_PENALTY
                     done = True
                 else: # > MAX_DURATION
                     terminal_reward = TIME_VIOLATION_PENALTY
@@ -549,11 +554,8 @@ for NUM_NODES in [10,15,20,25,30,40]:
         avg_loss = episode_loss_sum / steps_in_episode if steps_in_episode > 0 else 0
         drl_episode_losses.append(avg_loss)
         episode = episode + 1
-        if (episode + 1) % (NUM_EPISODES // 10) == 0: # Print progress 10 times
-            print(f"DRL Episode: {episode + 1}/{NUM_EPISODES}, Steps: {steps_in_episode}, Total Steps: {drl_total_steps}, Reward: {episode_reward:.0f}, Avg Loss: {avg_loss:.4f}, Epsilon: {drl_agent.epsilon:.3f}")
-            if last_reward == episode_reward:
-                counter = counter + 1
-            last_reward = episode_reward
+        #if (episode + 1) % (NUM_EPISODES // 10) == 0: # Print progress 10 times
+        #    print(f"DRL Episode: {episode + 1}/{NUM_EPISODES}, Steps: {steps_in_episode}, Total Steps: {drl_total_steps}, Reward: {episode_reward:.0f}, Avg Loss: {avg_loss:.4f}, Epsilon: {drl_agent.epsilon:.3f}")
 
     drl_training_time = time.time() - drl_start_train_time
     print(f"\nDRL Training Finished. Total time: {drl_training_time:.2f} seconds")
@@ -565,7 +567,7 @@ for NUM_NODES in [10,15,20,25,30,40]:
     heuristic_times = []
     drl_inference_times = []
     heuristic2_times = []
-    lp_times = []
+    lns_times = []
 
     print("\n--- Running Solvers for Each Start Node ---")
 
@@ -573,30 +575,31 @@ for NUM_NODES in [10,15,20,25,30,40]:
         print(f"Solving for Start Node: {s_node}")
         result_row = {'Start Node': s_node}
 
-        # First solve LP relaxation
-        t0 = time.time()
-        lp_status, lp_bound = solve_lp_relaxation(s_node, time_matrix, reward_matrix, MIN_DURATION, MAX_DURATION, NUM_NODES)
-        lp_times.append(time.time() - t0)
-        result_row['LP Status'] = lp_status
-        result_row['LP Upper Bound'] = lp_bound
         
         # Solve with DRL
         t0 = time.time()
-        drl_route, drl_reward, drl_duration = generate_optimal_route_pytorch(drl_agent, s_node, time_matrix, reward_matrix,NUM_NODES,MAX_DURATION,MIN_DURATION,MAX_STEPS_PER_EPISODE)
-        drl_inference_times.append(time.time() - t0)
+        drl_route, drl_reward, drl_duration = generate_optimal_route_pytorch(drl_agent, s_node, time_matrix, reward_matrix,NUM_NODES,MAX_DURATION,MAX_STEPS_PER_EPISODE)
+        inference_time = time.time() - t0
+        drl_inference_times.append(inference_time)
         result_row['DRL Route'] = drl_route
         result_row['DRL Reward'] = drl_reward if drl_route else -np.inf
-        print(drl_route)
+        print("DRL",drl_route)
+        print("DRL Reward:",drl_reward)
+        print("Inference Time:",inference_time)
         result_row['DRL Duration'] = drl_duration if drl_route else np.inf
         result_row['DRL Valid'] = drl_route is not None and drl_route[0] == drl_route[-1]
 
         # Solve with MIP
         t0 = time.time()
         # Use original (non-penalized) reward matrix for MIP objective
-        mip_status, mip_route, mip_reward, mip_duration = solve_mip(s_node, time_matrix, reward_matrix, MIN_DURATION, MAX_DURATION, NUM_NODES)
-        mip_times.append(time.time() - t0)
+        mip_status, mip_route, mip_reward, mip_duration = solve_mip(s_node, time_matrix, reward_matrix, MAX_DURATION, NUM_NODES)
+        mip_inference_time = time.time() - t0
+        mip_times.append(mip_inference_time)
         result_row['MIP Status'] = mip_status
         result_row['MIP Route'] = mip_route
+        print("MIP",mip_route)
+        print("MIP Reward:",mip_reward)
+        print("MIP Inference Time:",mip_inference_time)
         result_row['MIP Reward'] = mip_reward if mip_status == 'Optimal' else -np.inf
         result_row['MIP Duration'] = mip_duration if mip_status == 'Optimal' else np.inf
         result_row['MIP Valid'] = mip_status == 'Optimal' and mip_route is not None
@@ -604,8 +607,12 @@ for NUM_NODES in [10,15,20,25,30,40]:
         # Solve with Heuristic
         t0 = time.time()
         # Use original reward matrix for heuristic evaluation
-        heu_status, heu_route, heu_reward, heu_duration, heu_valid = solve_heuristic(s_node, time_matrix, reward_matrix, MIN_DURATION, MAX_DURATION, NUM_NODES)
-        heuristic_times.append(time.time() - t0)
+        heu_status, heu_route, heu_reward, heu_duration, heu_valid = solve_heuristic(s_node, time_matrix, reward_matrix, MAX_DURATION, NUM_NODES)
+        greedy_inference_time = time.time() - t0
+        heuristic_times.append(greedy_inference_time)
+        print("Greedy",heu_route)
+        print("Greedy Reward:",heu_reward)
+        print("Greedy Inference Time:",greedy_inference_time)
         result_row['Heuristic Route'] = heu_route
         result_row['Heuristic Reward'] = heu_reward if heu_valid else (heu_reward if heu_route else -np.inf) # Show reward even if duration invalid
         result_row['Heuristic Duration'] = heu_duration if heu_route else np.inf
@@ -613,13 +620,33 @@ for NUM_NODES in [10,15,20,25,30,40]:
 
         t0 = time.time()
         # Use original reward matrix for heuristic evaluation
-        reg_status, reg_route, reg_reward, reg_duration, reg_valid = solve_2opt_heuristic(s_node, time_matrix, reward_matrix, MIN_DURATION, MAX_DURATION, NUM_NODES)
-        heuristic2_times.append(time.time() - t0)
+        reg_status, reg_route, reg_reward, reg_duration, reg_valid = solve_2opt_heuristic(s_node, time_matrix, reward_matrix,  MAX_DURATION, NUM_NODES)
+        GreedyOpt_inference_time = time.time() - t0
+        heuristic2_times.append(GreedyOpt_inference_time)
         result_row['2Opt Route'] = reg_route
+        print("Greedy 2Opt",reg_route)
+        print("2Opt Reward:",reg_reward)
+        print("2Opt Inference Time:",GreedyOpt_inference_time)
         result_row['2Opt Reward'] = reg_reward if reg_valid else (reg_reward if reg_route else -np.inf)
         result_row['2Opt Duration'] = reg_duration if reg_route else np.inf
         result_row['2Opt Valid'] = reg_valid
         # Add gap calculations as for other heuristics
+        
+        #Solve with LNS Metaheuristic
+        t0= time.time()
+        # Use original (non-penalized) reward matrix for MIP objective
+        ga_status, ga_route, ga_reward, ga_duration = solve_genetic_algorithm(s_node, time_matrix, reward_matrix, MAX_DURATION, NUM_NODES)        
+        lns_inference_time = time.time() - t0
+        lns_times.append(lns_inference_time)
+        result_row['GA Status'] = ga_status
+        result_row['GA Route'] = ga_route
+        print("GA",ga_route)
+        print("GA Reward:",ga_reward)
+        print("GA Inference Time:",lns_inference_time)
+        result_row['LNS Reward'] = ga_reward if ga_status == 'Optimal' else -np.inf
+        result_row['LNS Duration'] = ga_duration if ga_status == 'Optimal' else np.inf
+        result_row['LNS Valid'] = ga_status == 'Optimal' and ga_route is not None
+        
         
         # Calculate Optimality Gaps (relative to MIP if MIP is optimal)
         mip_opt_reward = result_row['MIP Reward']
@@ -627,47 +654,37 @@ for NUM_NODES in [10,15,20,25,30,40]:
             drl_gap = ((mip_opt_reward - result_row['DRL Reward']) / abs(mip_opt_reward)) * 100 if abs(mip_opt_reward) > 1e-6 and result_row['DRL Valid'] else float('nan')
             heu_gap = ((mip_opt_reward - result_row['Heuristic Reward']) / abs(mip_opt_reward)) * 100 if abs(mip_opt_reward) > 1e-6 and result_row['Heuristic Valid'] else float('nan')
             reg_gap = ((mip_opt_reward - result_row['2Opt Reward']) / abs(mip_opt_reward)) * 100 if abs(mip_opt_reward) > 1e-6 and reg_valid else float('nan')
+            lns_gap = ((mip_opt_reward - result_row['LNS Reward']) / abs(mip_opt_reward)) * 100 if abs(mip_opt_reward) > 1e-6 and result_row['LNS Valid'] else float('nan')
         else:
             drl_gap = float('nan')
             heu_gap = float('nan')
             reg_gap = float('nan')
-        # Add gap calculations relative to LP bound
-        if lp_status == 'Optimal':
-            mip_lp_gap = ((lp_bound - result_row['MIP Reward']) / abs(lp_bound)) * 100 if result_row['MIP Valid'] else float('nan')
-            drl_lp_gap = ((lp_bound - result_row['DRL Reward']) / abs(lp_bound)) * 100 if result_row['DRL Valid'] else float('nan')
-            heu_lp_gap = ((lp_bound - result_row['Heuristic Reward']) / abs(lp_bound)) * 100 if result_row['Heuristic Valid'] else float('nan')
-            reg_lp_gap = ((lp_bound - result_row['2Opt Reward']) / abs(lp_bound)) * 100 if reg_valid else float('nan')
-        else:
-            mip_lp_gap = float('nan')
-            drl_lp_gap = float('nan')
-            heu_lp_gap = float('nan')  
-            reg_lp_gap = float('nan')  
-        result_row['MIP-LP Gap (%)'] = mip_lp_gap
-        result_row['DRL-LP Gap (%)'] = drl_lp_gap
-        result_row['Heuristic-LP Gap (%)'] = heu_lp_gap
-        result_row['2Opt-LP Gap (%)'] = reg_lp_gap
+            lns_gap = float('nan')
+       
         result_row['DRL Gap (%)'] = drl_gap
         result_row['Heuristic Gap (%)'] = heu_gap
         result_row['2Opt Gap (%)'] = reg_gap
+        result_row['LNS Gap (%)'] = lns_gap
 
         results.append(result_row)
     results_df = pd.DataFrame(results)
-    # Average Rewards and Gaps
-    avg_lp_bound = results_df['LP Upper Bound'].mean()
     avg_mip_reward = results_df.loc[results_df['MIP Valid'], 'MIP Reward'].mean()
     avg_drl_reward = results_df.loc[results_df['DRL Valid'], 'DRL Reward'].mean()
     avg_heu_reward = results_df.loc[results_df['Heuristic Valid'], 'Heuristic Reward'].mean()
     avg_regret2_reward = results_df.loc[results_df['2Opt Valid'], '2Opt Reward'].mean()
+    avg_lns_reward = results_df.loc[results_df['LNS Valid'], 'LNS Reward'].mean()
     summary_rows.append({
         'Node Size': NUM_NODES,
-        'LP Upper Bound': avg_lp_bound,
         'MIP Avg Reward': avg_mip_reward,
         'DRL Avg Reward': avg_drl_reward,
         'Heuristic Avg Reward': avg_heu_reward,
-        '2Opt Avg Reward': avg_regret2_reward
+        '2Opt Avg Reward': avg_regret2_reward,
+        'LNS Avg Reward': avg_lns_reward,
+        'MIP Avg Time': np.mean(mip_times),
+        'DRL Avg Time': np.mean(drl_inference_times),
+        'Heuristic Avg Time': np.mean(heuristic_times),
+        '2Opt Avg Time': np.mean(heuristic2_times),
+        'LNS Avg Time': np.mean(lns_times)
     })
-    # Format gaps for display
-    results_df['DRL Gap (%)'] = results_df['DRL Gap (%)'].map('{:.1f}'.format, na_action='ignore')
-    results_df['Heuristic Gap (%)'] = results_df['Heuristic Gap (%)'].map('{:.1f}'.format, na_action='ignore')
 node_summary_df = pd.DataFrame(summary_rows)
 node_summary_df.to_excel("DRL_Routing_Summary_New.xlsx", index=False)
