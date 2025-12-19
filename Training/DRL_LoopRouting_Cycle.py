@@ -14,7 +14,7 @@ from Solvers import generate_optimal_route_pytorch, solve_mip, solve_heuristic, 
 import warnings
 warnings.filterwarnings("ignore")
 summary_rows = []
-for NUM_NODES in [15]:
+for NUM_NODES in [10,15,20,25,30,40]:
     print("Nodes:",NUM_NODES)
     #set input dates
     date = "_2024-12-09"
@@ -104,9 +104,10 @@ for NUM_NODES in [15]:
 
     EPSILON_START = 1.0
     EPSILON_END = 0.05 
-    EPSILON_DECAY_STEPS = max(50000, NUM_NODES * 10000)
+    EPSILON_DECAY_STEPS = NUM_NODES * 10000
 
-    BUFFER_SIZE = 10000 
+    # Buffer size scales quadratically with problem size
+    BUFFER_SIZE = max(5000, NUM_NODES * NUM_NODES * 40)
     BATCH_SIZE = 32 
 
     MAX_STEPS_PER_EPISODE = 4
@@ -298,11 +299,15 @@ for NUM_NODES in [15]:
         # Suggest hyperparameters (narrowed ranges if needed)
         learning_rate = trial.suggest_loguniform('learning_rate', 1.7e-4, 2.5e-4)
         gamma = trial.suggest_float('gamma', 0.94, 0.96)
-        epsilon_start = trial.suggest_float('epsilon_start', 0.6, 0.8)
+        epsilon_start = trial.suggest_float('epsilon_start', 0.6, 0.85)
         epsilon_end = trial.suggest_float('epsilon_end', 0.03, 0.07)
         epsilon_decay_steps = trial.suggest_int('epsilon_decay_steps', int(0.8*EPSILON_DECAY_STEPS), int(1.2*EPSILON_DECAY_STEPS))
-        buffer_size = trial.suggest_int('buffer_size', 20000, 30000)
-        batch_size = trial.suggest_int('batch_size', 40, 60)
+        
+        # Buffer size scales quadratically with problem size
+        base_buffer = max(30000, NUM_NODES * NUM_NODES * 40)
+        buffer_size = trial.suggest_int('buffer_size', int(base_buffer * 0.7), int(base_buffer * 1.3))
+        
+        batch_size = trial.suggest_int('batch_size', int(NUM_NODES*NUM_NODES/3), int(NUM_NODES*NUM_NODES/2))
         max_steps_per_episode = MAX_STEPS_PER_EPISODE
         target_update_freq = trial.suggest_int('target_update_freq', 40, 60)
         hidden1 = trial.suggest_int('hidden1', NUM_NODES*NUM_NODES, NUM_NODES*NUM_NODES*2)
@@ -554,8 +559,8 @@ for NUM_NODES in [15]:
         avg_loss = episode_loss_sum / steps_in_episode if steps_in_episode > 0 else 0
         drl_episode_losses.append(avg_loss)
         episode = episode + 1
-        #if (episode + 1) % (NUM_EPISODES // 10) == 0: # Print progress 10 times
-        #    print(f"DRL Episode: {episode + 1}/{NUM_EPISODES}, Steps: {steps_in_episode}, Total Steps: {drl_total_steps}, Reward: {episode_reward:.0f}, Avg Loss: {avg_loss:.4f}, Epsilon: {drl_agent.epsilon:.3f}")
+        if (episode + 1) % (NUM_EPISODES // 10) == 0: # Print progress 10 times
+            print(f"DRL Episode: {episode + 1}/{NUM_EPISODES}, Steps: {steps_in_episode}, Total Steps: {drl_total_steps}, Reward: {episode_reward:.0f}, Avg Loss: {avg_loss:.4f}, Epsilon: {drl_agent.epsilon:.3f}")
 
     drl_training_time = time.time() - drl_start_train_time
     print(f"\nDRL Training Finished. Total time: {drl_training_time:.2f} seconds")
