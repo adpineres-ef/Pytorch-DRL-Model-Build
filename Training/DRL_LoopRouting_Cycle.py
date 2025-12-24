@@ -14,7 +14,7 @@ from Solvers import generate_optimal_route_pytorch, solve_mip, solve_heuristic, 
 import warnings
 warnings.filterwarnings("ignore")
 summary_rows = []
-for NUM_NODES in [10,15,20,25,30,40]:
+for NUM_NODES in [10,15,20,25]:
     print("Nodes:",NUM_NODES)
     #set input dates
     date = "_2024-12-09"
@@ -279,13 +279,15 @@ for NUM_NODES in [10,15,20,25,30,40]:
     import optuna
     def get_optuna_episodes(num_nodes):
         if num_nodes <= 10:
-            return 3000
-        elif num_nodes <= 15:
-            return 4000
-        elif num_nodes <= 20:
             return 5000
-        else:
+        elif num_nodes <= 15:
             return 6000
+        elif num_nodes <= 20:
+            return 7000
+        elif num_nodes <= 30:
+            return 8000
+        else:
+            return 10000
     def objective(trial):
         # Set fixed random seed for reproducibility
         num_episodes = get_optuna_episodes(NUM_NODES)
@@ -304,8 +306,8 @@ for NUM_NODES in [10,15,20,25,30,40]:
         epsilon_decay_steps = trial.suggest_int('epsilon_decay_steps', int(0.8*EPSILON_DECAY_STEPS), int(1.2*EPSILON_DECAY_STEPS))
         
         # Buffer size scales quadratically with problem size
-        base_buffer = max(30000, NUM_NODES * NUM_NODES * 40)
-        buffer_size = trial.suggest_int('buffer_size', int(base_buffer * 0.7), int(base_buffer * 1.3))
+        base_buffer = max(20000, NUM_NODES * NUM_NODES * 40)
+        buffer_size = trial.suggest_int('buffer_size', int(base_buffer * 0.8), int(base_buffer * 1.5))
         
         batch_size = trial.suggest_int('batch_size', int(NUM_NODES*NUM_NODES/3), int(NUM_NODES*NUM_NODES/2))
         max_steps_per_episode = MAX_STEPS_PER_EPISODE
@@ -454,7 +456,7 @@ for NUM_NODES in [10,15,20,25,30,40]:
     def get_num_episodes(num_nodes):
         # You can tune this formula based on your experiments
         if num_nodes <= 10:
-            return 30000
+            return 25000
         elif num_nodes <= 15:
             return 70000
         elif num_nodes <= 20:
@@ -493,13 +495,33 @@ for NUM_NODES in [10,15,20,25,30,40]:
 
     print("Starting DRL Training...")
 
+    # Initialize episode counter for each node
+    node_episode_count = {node: 0 for node in range(NUM_NODES)}
+    
+    def select_start_node_balanced(current_episode, total_episodes, num_nodes, episode_counts):
+        """
+        Selects a start node using random selection in the first 25% of training,
+        then switches to balanced selection (least-used nodes get priority).
+        """
+        threshold_episode = int(0.25 * total_episodes)
+        
+        if current_episode < threshold_episode:
+            # First 25%: Random selection
+            return random.randint(0, num_nodes - 1)
+        else:
+            # After 25%: Select node with least episodes
+            min_count = min(episode_counts.values())
+            candidates = [node for node, count in episode_counts.items() if count == min_count]
+            return random.choice(candidates)  # If tie, randomly pick among least-used
+
     #for start_node in range(0,NUM_NODES-1):
     #print(start_node)
     last_reward = 0
     episode = 0
     while episode < NUM_EPISODES:
     #for episode in range(NUM_EPISODES):
-        start_node = random.randint(0, NUM_NODES-1)
+        start_node = select_start_node_balanced(episode, NUM_EPISODES, NUM_NODES, node_episode_count)
+        node_episode_count[start_node] += 1
         current_node = start_node
         time_elapsed = 0.0
         state = np.array([current_node, time_elapsed / MAX_DURATION], dtype=np.float32)
